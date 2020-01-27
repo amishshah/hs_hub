@@ -4,6 +4,7 @@ import { checkIsLoggedIn, checkIsVolunteer, checkIsOrganizer } from "../util/use
 import { inject, injectable } from "inversify";
 import { RouterInterface } from ".";
 import { TYPES } from "../types";
+import expressWs = require("express-ws");
 
 @injectable()
 export class HardwareRouter implements RouterInterface {
@@ -18,7 +19,7 @@ export class HardwareRouter implements RouterInterface {
   }
 
   public register(): Router {
-    const router: Router = Router();
+    const router: expressWs.Router = Router();
 
     router.use(checkIsLoggedIn);
 
@@ -96,6 +97,17 @@ export class HardwareRouter implements RouterInterface {
      * DELETE /hardware/:id
      */
     router.delete("/:id", checkIsOrganizer, this._hardwareController.deleteItem);
+
+    /**
+     * WEBSOCKET /hardware/ws
+     */
+    router.ws("/ws", (ws, req) => {
+      console.log("new ws connection");
+      ws.on("message", msg => {
+        console.log("got", msg);
+        ws.send(msg);
+      })
+    });
 
     return router;
   }

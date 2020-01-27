@@ -12,6 +12,7 @@ import { errorHandler, error404Handler } from "./util/errorHandling";
 import { RouterInterface } from "./routes";
 import { TYPES } from "./types";
 import container from "./inversify.config";
+import * as expressWs from "express-ws";
 
 // Load environment variables from .env file
 dotenv.config({ path: ".env" });
@@ -66,6 +67,7 @@ export function buildApp(callback: (app: Express, err?: Error) => void, connecti
 const expressSetup = (): Express => {
   // Create Express server
   const app = express();
+  expressWs(app);
 
   // view engine setup
   app.set("views", path.join(__dirname, "views"));
