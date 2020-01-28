@@ -381,15 +381,8 @@ export class HardwareController implements HardwareControllerInterface {
    * A stream of events from the hardware library
    */
   public eventStream = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    // Set headers required for SSE
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader("Content-Type", "text/event-stream");
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Connection", "keep-alive");
-
     // Track this connection
-    const subscriber = new Subscriber(req, res);
-    this._sseService.addSubscriber(subscriber);
+    this._sseService.addSubscriber(new Subscriber(req, res));
 
     this._sseService.broadcast({ test: "hello!" });
   };

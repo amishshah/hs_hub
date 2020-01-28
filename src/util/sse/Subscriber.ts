@@ -10,6 +10,14 @@ export class Subscriber extends EventEmitter {
         this._req = req;
         this._res = res;
 
+        // Set headers needed for SSE
+        res.setHeader("Cache-Control", "no-cache");
+        res.setHeader("Content-Type", "text/event-stream");
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader("Connection", "keep-alive");
+        res.flushHeaders();
+
+        // Forward close event
         this._req.on("close", () => this.emit("close"));
     }
 
