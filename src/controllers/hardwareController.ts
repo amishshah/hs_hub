@@ -4,11 +4,12 @@ import { HttpResponseCode } from "../util/errorHandling/httpResponseCode";
 import { HardwareItem, ReservedHardwareItem, User } from "../db/entity";
 import { AuthLevels } from "../util/user";
 import { validate, ValidationError } from "class-validator";
-import { ReservedHardwareService, HardwareService } from "../services/hardware";
+import { ReservedHardwareService, HardwareService, HardwareSSEService } from "../services/hardware";
 import { TeamService } from "../services/teams/teamService";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../types";
 import { RequestUser } from "../util/hs_auth";
+import { Subscriber } from "../util/sse";
 
 export interface HardwareControllerInterface {
   library: (req: Request, res: Response, next: NextFunction) => Promise<void>;
@@ -34,8 +35,8 @@ export interface HardwareControllerInterface {
 export class HardwareController implements HardwareControllerInterface {
   private _hardwareService: HardwareService;
   private _reservedHardwareService: ReservedHardwareService;
+  private _sseService: HardwareSSEService;
   private _teamService: TeamService;
-  private _liveConnections: Response[];
   constructor(
     @inject(TYPES.HardwareService) hardwareService: HardwareService, 
     @inject(TYPES.ReservedHardwareService) reservedHardwareService: ReservedHardwareService,
@@ -44,7 +45,7 @@ export class HardwareController implements HardwareControllerInterface {
     this._hardwareService = hardwareService;
     this._reservedHardwareService = reservedHardwareService;
     this._teamService = teamService;
-    this._liveConnections = [];
+    this._sseService = new HardwareSSEService();
   }
 
   /**
@@ -387,18 +388,9 @@ export class HardwareController implements HardwareControllerInterface {
     res.setHeader("Connection", "keep-alive");
 
     // Track this connection
-    this._liveConnections.push(res);
+    const subscriber = new Subscriber(req, res);
+    this._sseService.addSubscriber(subscriber);
 
-    // Once connection closes, remove it so no events are sent to it
-    res.once("close", () => {
-      const index = this._liveConnections.indexOf(res);
-      if (index !== -1) {
-        this._liveConnections.splice(index);
-      }
-    })
-
-    res.write(`data: ${JSON.stringify({
-      test: true
-    })}\n\n`);
+    this._sseService.broadcast({ test: "hello!" });
   };
 }
