@@ -23,7 +23,7 @@ import { ScheduleController, ScheduleControllerInterface } from "./controllers"
 // Hardware
 import { HardwareRouter } from "./routes"
 import { HardwareController, HardwareControllerInterface } from "./controllers"
-import { HardwareService, ReservedHardwareService, HardwareServiceInterface, ReservedHardwareServiceInterface } from "./services/hardware";
+import { HardwareService, ReservedHardwareService, HardwareSSEService, HardwareServiceInterface, ReservedHardwareServiceInterface, HardwareSSEServiceInterface } from "./services/hardware";
 
 // Challenges
 import { ChallengeRouter } from "./routes"
@@ -76,6 +76,7 @@ container.bind<ScheduleControllerInterface>(TYPES.ScheduleController).to(Schedul
 container.bind<HardwareControllerInterface>(TYPES.HardwareController).to(HardwareController);
 container.bind<HardwareServiceInterface>(TYPES.HardwareService).to(HardwareService);
 container.bind<ReservedHardwareServiceInterface>(TYPES.ReservedHardwareService).to(ReservedHardwareService);
+container.bind<HardwareSSEServiceInterface>(TYPES.HardwareSSEService).to(HardwareSSEService);
 container.bind<HardwareRepository>(TYPES.HardwareRepository).to(HardwareRepository);
 container.bind<ReservedHardwareRepository>(TYPES.ReservedHardwareRepository).to(ReservedHardwareRepository);
 

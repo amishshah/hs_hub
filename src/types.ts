@@ -14,6 +14,7 @@ export const TYPES = {
   TeamService: Symbol.for("TeamService"),
   HardwareService: Symbol.for("HardwareService"),
   ReservedHardwareService: Symbol.for("ReservedHardwareService"),
+  HardwareSSEService: Symbol.for("HardwareSSEService"),
   ChallengeService: Symbol.for("ChallengeService"),
   AnnouncementService: Symbol.for("AnnouncementService"),
   AchievementsService: Symbol.for("AchievementsService"),
