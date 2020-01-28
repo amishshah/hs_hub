@@ -35,6 +35,7 @@ export class HardwareController implements HardwareControllerInterface {
   private _hardwareService: HardwareService;
   private _reservedHardwareService: ReservedHardwareService;
   private _teamService: TeamService;
+  private _liveConnections: Response[];
   constructor(
     @inject(TYPES.HardwareService) hardwareService: HardwareService, 
     @inject(TYPES.ReservedHardwareService) reservedHardwareService: ReservedHardwareService,
@@ -43,6 +44,7 @@ export class HardwareController implements HardwareControllerInterface {
     this._hardwareService = hardwareService;
     this._reservedHardwareService = reservedHardwareService;
     this._teamService = teamService;
+    this._liveConnections = [];
   }
 
   /**
@@ -372,5 +374,31 @@ export class HardwareController implements HardwareControllerInterface {
     } catch (err) {
       next(new ApiError(err.statusCode || HttpResponseCode.INTERNAL_ERROR, err.message));
     }
+  };
+
+  /**
+   * A stream of events from the hardware library
+   */
+  public eventStream = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    // Set headers required for SSE
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Connection", "keep-alive");
+
+    // Track this connection
+    this._liveConnections.push(res);
+
+    // Once connection closes, remove it so no events are sent to it
+    res.once("close", () => {
+      const index = this._liveConnections.indexOf(res);
+      if (index !== -1) {
+        this._liveConnections.splice(index);
+      }
+    })
+
+    res.write(`data: ${JSON.stringify({
+      test: true
+    })}\n\n`);
   };
 }

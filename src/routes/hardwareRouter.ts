@@ -97,6 +97,11 @@ export class HardwareRouter implements RouterInterface {
      */
     router.delete("/:id", checkIsOrganizer, this._hardwareController.deleteItem);
 
+    /**
+     * GET /hardware/live
+     */
+    router.get("/live", this._hardwareController.eventStream);
+
     return router;
   }
 };
