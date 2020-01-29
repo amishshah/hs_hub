@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import { ReservedHardwareItem } from "./reservedHardwareItem";
 import { IsUrl, IsString, IsNumber, IsDefined, Min } from "class-validator";
+import { SSEHardwareItem } from "../../util/sse";
 
 @Entity()
 export class HardwareItem {
@@ -31,4 +32,16 @@ export class HardwareItem {
 
   @OneToMany(() => ReservedHardwareItem, reservedHardwareItem => reservedHardwareItem.hardwareItem)
   reservations: ReservedHardwareItem[];
+
+  public intoSSE(): SSEHardwareItem {
+    const itemsLeft = this.totalStock - (this.takenStock + this.reservedStock);
+    return {
+      itemID: this.id,
+      itemName: this.name,
+      itemURL: this.itemURL,
+      itemStock: this.totalStock,
+      itemsLeft,
+      itemHasStock: itemsLeft > 0,
+    }
+  }
 }
